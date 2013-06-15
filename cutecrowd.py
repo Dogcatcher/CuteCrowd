@@ -71,21 +71,40 @@ def processGrid(x1,y1,x2,y2):
         x1,x2=x2,x1
     if (y1 > y2):
         y1,y2=y2,y1
-    x1-=2
+    x1-=3
     if (x1 < 0):
         x1=0
-    x2+=2
+    x2+=3
     if (x2 > 8):
         x2=8
-    y1-=2
+    y1-=3
     if (y1 < 0):
         y1=0
-    y2+=2
+    y2+=3
     if (y2 > 8):
         y2=8    
     print("Checking columns {0} to {1}".format(x1,x2))
     print("Checking rows    {0} to {1}".format(y1,y2))
-    
+
+    previous=0
+    match=1
+    for py in range (y2,y1-1,-1):
+        for px in range (x1,x2+1):
+            #print("examining {0},{1} current {2} previous {3}".format(px,py,grid[px,py],previous))
+            if (grid[px,py] == previous):
+                match=match+1
+                #print("match with previous match={0}".format(match))
+            elif (grid[px,py] != previous) or (px == x2):
+                if(match > 2):
+                   print("found a {0} match ending at {1},{2}".format(match,px-1,py))
+                match=1
+            previous=grid[px,py]
+           
+
+    # if changes made return true    
+    return True
+
+def cascadeGrid():
     return True
 
 seedLevel()
@@ -109,7 +128,8 @@ while True:
                 grid[a,b]=grid[c,d]
                 grid[c,d]=e
                 drawScreen(a,c)
-                processGrid(a,b,c,d)
+                if (processGrid(a,b,c,d)):
+                    cascadeGrid()
 
         elif (event.type == KEYDOWN):
             if (event.key == K_ESCAPE):
