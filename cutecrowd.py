@@ -55,6 +55,7 @@ def seedLevel():
             grid[x,y]=getRand()
             
 def drawScreen(x1,x2):
+    SCREEN.fill(BLACK)
     #print("passed x1:{0} x2:{1}".format(x1,x2)) 
     if (x1 > x2):
         print("swapping")
@@ -67,8 +68,12 @@ def drawScreen(x1,x2):
     
     for x in range(x1,x2):
         for y in range(0,9):
+            if (grid[x,y] > 10):
+                grid[x,y] = SELECTOR
+            elif (grid[x,y] > 5):
+                grid[x,y] = STAR
             SCREEN.blit(crowd[grid[x,y]],(x*width,y*height))
-    pygame.display.flip()
+    #pygame.display.flip()
 
 def processGrid(x1,y1,x2,y2):
     if (x1 > x2):
@@ -90,39 +95,75 @@ def processGrid(x1,y1,x2,y2):
     print("Checking columns {0} to {1}".format(x1,x2))
     print("Checking rows    {0} to {1}".format(y1,y2))
 
-
-    for py in range (y2,y1-1,-1):
+    # horizontal matches
+    for py in range (y1,y2+1):
         previous=0
         match=1
         for px in range (x1,x2+1):
             #print("examining {0},{1} current {2} previous {3}".format(px,py,grid[px,py],previous))
-            if (grid[px,py] == previous):
+            if (grid[px,py] == previous) and (6 > grid[px,py] > 0):
                 match=match+1
                 #print("match with previous match={0}".format(match))
             if (grid[px,py] != previous) or (px == x2):
                 if(match > 2):
                     o=1
+                    if (px == x2) and (grid[px,py] == previous):
+                        o=0
                     print("found a {0} match ending at {1},{2}".format(match,px-o,py))
                     for n in range (o,match+o):
                         print("blanking {0},{1}".format(px-n,py))
-                        grid[px-n,py]=0
-                        time.sleep(0.2)
+                        grid[px-n,py] = STAR
+                        #time.sleep(0.02)
                         drawScreen(0,8)
-                        for m in range (py,0,-1):
-                            grid[px-n,m]=grid[px-n,m-1]
-                            time.sleep(0.02)
-                            drawScreen(0,8)
-                            grid[px-n,m-1]=0
-                            time.sleep(0.01)
-                            drawScreen(0,8)
-                        grid[px-n,0]=getRand()
-                        time.sleep(0.02)
-                        SCREEN.fill(BLACK)
-                        drawScreen(0,8)
+##                        for m in range (py,0,-1):
+##                            grid[px-n,m]=grid[px-n,m-1]
+##                            time.sleep(0.02)
+##                            drawScreen(0,8)
+##                            grid[px-n,m-1]=0
+##                            time.sleep(0.01)
+##                            drawScreen(0,8)
+##                        grid[px-n,0]=getRand()
+##                        time.sleep(0.02)
+##                        SCREEN.fill(BLACK)
+##                        drawScreen(0,8)
                     processGrid(0,0,8,8)                   
                 match=1
             previous=grid[px,py]
-           
+            
+    # vertical matches
+    for px in range (x1,x2+1):
+        previous=0
+        match=1
+        for py in range (y1,y2+1):
+            #print("examining {0},{1} current {2} previous {3}".format(px,py,grid[px,py],previous))
+            if (grid[px,py] == previous) and (6 > grid[px,py] > 0):
+                match=match+1
+                #print("match with previous match={0}".format(match))
+            if (grid[px,py] != previous) or (py == y2):
+                if(match > 2):
+                    o=1
+                    if (py == y2) and (grid[px,py] == previous):
+                        o=0
+                    print("found a {0} match ending at {1},{2}".format(match,px,py-o))
+                    for n in range (o,match+o):
+                        print("blanking {0},{1}".format(px,py-n))
+                        grid[px,py-n]=STAR
+                        #time.sleep(0.02)
+                        drawScreen(0,8)
+##                        for m in range (py,0,-1):
+##                            grid[px-n,m]=grid[px-n,m-1]
+##                            time.sleep(0.02)
+##                            drawScreen(0,8)
+##                            grid[px-n,m-1]=0
+##                            time.sleep(0.01)
+##                            drawScreen(0,8)
+##                        grid[px-n,0]=getRand()
+##                        time.sleep(0.02)
+##                        SCREEN.fill(BLACK)
+##                        drawScreen(0,8)
+                    processGrid(0,0,8,8)                   
+                match=1
+            previous=grid[px,py]           
 
     # if no changes made return false    
     return False
@@ -148,7 +189,7 @@ while True:
                 e=grid[a,b]
                 grid[a,b]=grid[c,d]
                 grid[c,d]=e
-                drawScreen(a,c)
+                drawScreen(0,8)
                 processGrid(0,0,8,8)
 
         elif (event.type == KEYDOWN):
@@ -156,5 +197,6 @@ while True:
                 pygame.quit()
                 sys.exit()
             
-    fpsClock.tick(FPS)    
+    fpsClock.tick(FPS)
+    pygame.display.flip()
     pygame.display.set_caption("FPS {0}".format(int(fpsClock.get_fps())))
