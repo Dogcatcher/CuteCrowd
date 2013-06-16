@@ -44,7 +44,7 @@ LEFT=1
 BLACK=(0,0,0)
 width=50
 height=40
-objects=4
+objects=5
 
 def getRand():
     return randint(1,objects)
@@ -90,9 +90,10 @@ def processGrid(x1,y1,x2,y2):
     print("Checking columns {0} to {1}".format(x1,x2))
     print("Checking rows    {0} to {1}".format(y1,y2))
 
-    previous=0
-    match=1
+
     for py in range (y2,y1-1,-1):
+        previous=0
+        match=1
         for px in range (x1,x2+1):
             #print("examining {0},{1} current {2} previous {3}".format(px,py,grid[px,py],previous))
             if (grid[px,py] == previous):
