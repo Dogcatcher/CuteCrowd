@@ -1,6 +1,6 @@
 # Cute Crowd
 
-import pygame, sys, numpy as np
+import pygame, sys, time, numpy as np
 from pygame.locals import *
 from random import random,randint
 
@@ -41,21 +41,25 @@ block[DIRTBLOCK]=pygame.image.load(iPath+'Dirt Block.png')
 block[WATERBLOCK]=pygame.image.load(iPath+'Water Block.png')
 
 LEFT=1
-
+BLACK=(0,0,0)
 width=50
 height=40
+objects=4
+
+def getRand():
+    return randint(1,objects)
 
 def seedLevel():
     for x in range(0,9):
         for y in range(0,9):
-            grid[x,y]=randint(1,5)
+            grid[x,y]=getRand()
             
 def drawScreen(x1,x2):
-    print("passed x1:{0} x2:{1}".format(x1,x2)) 
+    #print("passed x1:{0} x2:{1}".format(x1,x2)) 
     if (x1 > x2):
         print("swapping")
         x1,x2 = x2,x1
-    print("drawing {0} to {1}".format(x1,x2))
+    #print("drawing {0} to {1}".format(x1,x2))
     x2+=1
     for x in range(x1,x2):
         for y in range(0,9):
@@ -94,22 +98,38 @@ def processGrid(x1,y1,x2,y2):
             if (grid[px,py] == previous):
                 match=match+1
                 #print("match with previous match={0}".format(match))
-            elif (grid[px,py] != previous) or (px == x2):
+            if (grid[px,py] != previous) or (px == x2):
                 if(match > 2):
-                   print("found a {0} match ending at {1},{2}".format(match,px-1,py))
+                    o=1
+                    print("found a {0} match ending at {1},{2}".format(match,px-o,py))
+                    for n in range (o,match+o):
+                        print("blanking {0},{1}".format(px-n,py))
+                        grid[px-n,py]=0
+                        time.sleep(0.2)
+                        drawScreen(0,8)
+                        for m in range (py,0,-1):
+                            grid[px-n,m]=grid[px-n,m-1]
+                            time.sleep(0.02)
+                            drawScreen(0,8)
+                            grid[px-n,m-1]=0
+                            time.sleep(0.01)
+                            drawScreen(0,8)
+                        grid[px-n,0]=getRand()
+                        time.sleep(0.02)
+                        SCREEN.fill(BLACK)
+                        drawScreen(0,8)
+                    processGrid(0,0,8,8)                   
                 match=1
             previous=grid[px,py]
            
 
-    # if changes made return true    
-    return True
-
-def cascadeGrid():
-    return True
+    # if no changes made return false    
+    return False
 
 seedLevel()
-drawScreen(0,8)
 processGrid(0,0,8,8)
+drawScreen(0,8)
+
 a=b=c=d=0
 while True:
     for event in pygame.event.get():
@@ -128,8 +148,7 @@ while True:
                 grid[a,b]=grid[c,d]
                 grid[c,d]=e
                 drawScreen(a,c)
-                if (processGrid(a,b,c,d)):
-                    cascadeGrid()
+                processGrid(0,0,8,8)
 
         elif (event.type == KEYDOWN):
             if (event.key == K_ESCAPE):
